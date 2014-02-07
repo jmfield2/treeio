@@ -107,7 +107,8 @@ class Message(Object):
     reply_to = models.ForeignKey('self', blank=True, null=True, related_name='child_set')
     read_by = models.ManyToManyField(User, null=True, blank=True, related_name='read_by_user')
     mlist = models.ForeignKey(MailingList, blank=True, null=True, related_name='mlist')
-    
+    rfc822 = models.TextField(null=True)
+ 
     access_inherit = ('stream', '*module', '*user')
     
     class Meta:

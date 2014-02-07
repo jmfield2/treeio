@@ -64,6 +64,8 @@ class EmailStream(EmailReceiver):
                     if attrs.email_date:
                         message.date_created = attrs.email_date
 
+		    message.rfc822 = msg.as_string()
+
                     message.save()
                     message.copy_permissions(original)
                     original.read_by.clear()
@@ -73,6 +75,9 @@ class EmailStream(EmailReceiver):
                 message = Message(title=attrs.subject, body=attrs.body, author=email_author, stream=self.stream)
                 if attrs.email_date:
                     message.date_created = attrs.email_date
+
+		message.rfc822 = msg.as_string()
+
                 message.save()
                 message.copy_permissions(self.stream)
                 message.recipients.add(email_author)
@@ -127,7 +132,12 @@ class EmailMessage(Thread):
                 password = message.stream.outgoing_password
                 
                 port, ssl = self.get_smtp_port()
-                
+               
+		if ":" in message.stream.outgoing_server_name:
+			tmp = message.stream.outgoing_server_name.split(':')
+			port = int(tmp[1])
+			message.stream.outgoing_server_name = tmp[0]
+ 
                 BaseEmail(message.stream.outgoing_server_name, 
                     login, password, fromaddr, toaddr, subject,
                     body, signature=None, html=html, port=port, ssl=ssl).send_email()
