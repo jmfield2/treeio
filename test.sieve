@@ -1,4 +1,5 @@
 require "fileinto";
-if header :contains ["From", "To"] ["root2"] {
-	discard;
+
+if header :contains ["Subject"] ["Inquiry Message", "hotel reservation"] {
+	fileinto "Inquiries";
 }
