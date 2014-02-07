@@ -1,0 +1,24 @@
+From root@icmps.org Sat Mar 06 06:25:13 2010
+Return-path: <root@icmps.org>
+Envelope-to: root@icmps.org
+Delivery-date: Sat, 06 Mar 2010 06:25:13 -0500
+Received: from root by vps1.icmps.org with local (Exim 4.69)
+	(envelope-from <root@icmps.org>)
+	id 1Nns7z-0007Yd-E0
+	for root@icmps.org; Sat, 06 Mar 2010 06:25:10 -0500
+From: root@icmps.org (Cron Daemon)
+To: root@icmps.org
+Subject: Cron <root@vps1> test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+X-Cron-Env: <SHELL=/bin/sh>
+X-Cron-Env: <PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin>
+X-Cron-Env: <HOME=/root>
+X-Cron-Env: <LOGNAME=root>
+Message-Id: <E1Nns7z-0007Yd-E0@vps1.icmps.org>
+Date: Sat, 06 Mar 2010 06:25:08 -0500
+
+/etc/cron.daily/logrotate:
+error: error running shared postrotate script for /var/log/mysql.log /var/log/mysql/mysql.log /var/log/mysql/mysql-slow.log 
+run-parts: /etc/cron.daily/logrotate exited with return code 1
+
+

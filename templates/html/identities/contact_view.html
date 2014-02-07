@@ -136,4 +136,23 @@
 
 {% endif %}
 <br />
+
+<span class="larger">History</span>
+
+{{ history|length }}
+{% for row in history %}
+	<div>
+	{% if row.author == contact %}
+		Mail In
+	{% else %}
+		Mail Out
+	{% endif %}
+	- 
+	{{ row.date_created }}
+	- 
+	<a href="{% url 'messaging_message_view' row.id %}">{{ row.title }}</a>
+
+	</div>
+{% endfor %}
+
 {% endblock %}

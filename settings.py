@@ -180,6 +180,7 @@ INSTALLED_APPS = (
     'coffin',
     'captcha',
     'south',
+    'slk',
 )
 
 

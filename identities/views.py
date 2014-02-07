@@ -26,6 +26,7 @@ from treeio.identities.forms import ContactForm, FilterForm, ContactTypeForm, Co
                                       MassActionForm
 from treeio.identities.objects import get_contact_objects
 
+from treeio.messaging.models import Message
 
 def _get_filter_query(args):
     "Creates a query to filter Identities based on FilterForm arguments"
@@ -373,12 +374,15 @@ def contact_view(request, contact_id, attribute='', response_format='html'):
                 module = objects[key]['module']
                 break
     
+    history = Message.objects.filter(Q(author=contact) | Q(recipients=contact)).all()
+
     return render_to_response('identities/contact_view',
                               {'contact': contact,
                                'subcontacts': subcontacts,
                                'objects': objects,
                                'current_module': module,
                                'attribute': attribute,
+			       'history': history,
                                'types': types,
                                'contact_values': contact_values},
                               context_instance=RequestContext(request), response_format=response_format)
@@ -413,7 +417,7 @@ def contact_me(request, attribute='', response_format='html'):
             if attribute in objects[key]['objects'].keys():
                 module = objects[key]['module']
                 break
-    
+  
     return render_to_response('identities/contact_me',
                               {'contact': contact, 'types': types,
                                'subcontacts': subcontacts,
