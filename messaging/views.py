@@ -90,6 +90,17 @@ def index(request, response_format='html'):
     "Messaging index page"
     
     query = Q(reply_to__isnull=True) 
+
+    streams = False
+    st = MessageStream.objects.all()
+
+    for row in st:
+        if request.user.get_profile().has_permission(row):
+                if streams: streams = streams | Q(stream=row)
+                else: streams = Q(stream=row)
+
+    if streams: query = query & streams
+
     if request.GET:
         query = query & _get_filter_query(request.GET) 
         messages = Object.filter_by_request(request, Message.objects.filter(query))
@@ -113,6 +124,17 @@ def index_sent(request, response_format='html'):
     "Sent messages index page"
     
     query = Q(reply_to__isnull=True) & Q(author=request.user.get_profile().get_contact())
+
+    streams = False
+    st = MessageStream.objects.all()
+
+    for row in st:
+        if request.user.get_profile().has_permission(row):
+                if streams: streams = streams | Q(stream=row)
+                else: streams = Q(stream=row)
+
+    if streams: query = query & streams
+
     if request.GET:
         query = query & _get_filter_query(request.GET)
         messages = Object.filter_by_request(request, Message.objects.filter(query))
@@ -136,6 +158,17 @@ def index_inbox(request, response_format='html'):
     "Received messages index page"
 
     query = Q(reply_to__isnull=True) & ~Q(author=request.user.get_profile().get_contact())
+
+    streams = False
+    st = MessageStream.objects.all()
+
+    for row in st:
+        if request.user.get_profile().has_permission(row):
+                if streams: streams = streams | Q(stream=row)
+                else: streams = Q(stream=row)
+
+    if streams: query = query & streams
+
     if request.GET:
         query = query & _get_filter_query(request.GET)
         messages = Object.filter_by_request(request, Message.objects.filter(query))
@@ -160,6 +193,17 @@ def index_unread(request, response_format='html'):
     user = request.user.get_profile()
     
     query = Q(reply_to__isnull=True) & ~Q(read_by=user)
+
+    streams = False
+    st = MessageStream.objects.all()
+
+    for row in st:
+        if request.user.get_profile().has_permission(row):
+                if streams: streams = streams | Q(stream=row)
+                else: streams = Q(stream=row)
+
+    if streams: query = query & streams
+
     if request.GET:
         query = query & _get_filter_query(request.GET)
         messages = Object.filter_by_request(request, Message.objects.filter(query))

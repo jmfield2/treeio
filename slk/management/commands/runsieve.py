@@ -35,6 +35,26 @@ class Command(object):
 
         def run_from_argv(self, *args, **options):
 
+		import core.models as models
+		
+		mod = models.Module.objects.get(name='treeio.messaging')
+
+		a = mod.full_access.filter().query
+		print a
+
+		u = models.User.objects.filter(Q(name='Admin'))
+		print u.all()[0]
+		print u.query
+		return
+
+		print models.Object.filter(Q(object_id=39)) #full_access)
+		return
+		#q = full_access.filter(Q(object_id=39))
+		#print q
+					
+
+		return
+
 		stream = args[0][2] if len(args[0]) > 2 else ""
 		sieve = args[0][3] if len(args[0]) > 3 else "test.sieve"
 
