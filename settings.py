@@ -271,7 +271,7 @@ HARDTREE_CRON_PERIOD = 10 # seconds, default 60
 #HARDTREE_CRON_GRACE_WAIT = 5 # default 5
 
 # CHAT CRON!
-HARDTREE_CRON_DISABLED = True # Run chat?
+HARDTREE_CRON_DISABLED = False # Run chat?
 
 ### CRON config ends here
 
@@ -462,8 +462,15 @@ WHOOSH_INDEX = path.join(PROJECT_ROOT, 'storage/search')
 # CACHING
 #
 #CACHE_BACKEND = 'dummy://'
-CACHE_BACKEND = 'locmem://?timeout=30'
+#CACHE_BACKEND = 'locmem://?timeout=30'
 #CACHE_BACKEND = 'memcached://127.0.0.1:11211/?timeout=30'
+
+CACHES = {
+       'default': {
+               'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache'
+               'LOCATION': '127.0.0.1:11211',
+       }
+}
 
 #CACHE_BACKEND="johnny.backends.locmem://"
 

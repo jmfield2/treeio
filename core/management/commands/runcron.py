@@ -65,7 +65,7 @@ class CronJob(multiprocessing.Process):
             self._stopped = True
         except:
             import traceback
-            from hardtree import core
+            from treeio import core
             from django.core.mail import mail_admins
             exc_type, exc_value, exc_traceback = sys.exc_info()
             subject = "CRON Exception for " + unicode(self) + ": " + unicode(exc_type) + " " + unicode(exc_value)
