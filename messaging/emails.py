@@ -46,7 +46,9 @@ class EmailStream(EmailReceiver):
             email_author.copy_permissions(self.stream)
 
         # check if the message is already retrieved
-        existing = Message.objects.filter(stream=self.stream, title=attrs.subject, author=email_author, body=attrs.body).exists()
+
+	# XXX body=attrs.body removed, should store a unique 'msg-id'
+        existing = Message.objects.filter(stream=self.stream, title=attrs.subject, author=email_author).exists()
         if not existing:
             message = None
             if attrs.subject[:3] == 'Re:':
@@ -59,12 +61,12 @@ class EmailStream(EmailReceiver):
                 try:
                     query = Q(reply_to__isnull=True) & Q(recipients=email_author) & (Q(title=original_subject) | Q(title=attrs.subject))
                     original = Message.objects.filter(query).order_by('-date_created')[:1][0]
-                    message = Message(title=attrs.subject, body=attrs.body, author=email_author,
+                    message = Message(title=attrs.subject, body=str(attrs.body).decode('unicode_escape'), author=email_author,
                                     stream=self.stream, reply_to=original)
                     if attrs.email_date:
                         message.date_created = attrs.email_date
 
-		    message.rfc822 = msg.as_string()
+		    message.rfc822 = msg.as_string().decode('unicode_escape')
 
                     message.save()
                     message.copy_permissions(original)
@@ -72,11 +74,11 @@ class EmailStream(EmailReceiver):
                 except IndexError:
                     pass
             if not message:
-                message = Message(title=attrs.subject, body=attrs.body, author=email_author, stream=self.stream)
+                message = Message(title=attrs.subject, body=str(attrs.body).decode('unicode_escape'), author=email_author, stream=self.stream)
                 if attrs.email_date:
                     message.date_created = attrs.email_date
 
-		message.rfc822 = msg.as_string()
+		message.rfc822 = msg.as_string().decode('unicode_escape') #utf-8', errors='replace')
 
                 message.save()
                 message.copy_permissions(self.stream)
