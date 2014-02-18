@@ -217,6 +217,14 @@ class MessageReplyForm(forms.ModelForm):
             self.fields['stream'].initial = self.fields['stream'].queryset[0].id
         
         self.fields['body'].label = _("Body")
+        # signature
+        try:
+            conf = ModuleSetting.get_for_module('treeio.messaging', 'signature',
+                                                user=user, strict=True)[0]
+            signature = conf.value
+            self.fields['body'].initial = signature
+        except:
+            pass
         
                 
     class Meta:
