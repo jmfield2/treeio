@@ -44,6 +44,9 @@ class MailingList(Object):
 
 #TODO: Add segment and urltrack models
 
+# Segment Object
+# Name, Contact_id, date_added, status, last_message
+
 
 # MessageStream Model
 class MessageStream(Object):
@@ -163,4 +166,20 @@ class Message(Object):
             email = email[0]
             
         return email
+
+    def has_attachments(self):
+    	accepted_types = ['audio', 'image', 'application']
+	has = False
+
+    	import email
+    	rfc=unicode(self.message.rfc822).encode('utf-8', errors='replace')
+    	e = email.message_from_string(rfc)
+   	for part in e.walk():
+		if part.get_content_type() == None: continue
+        	type = part.get_content_type().split('/')[0]
+        	if type in accepted_types:
+			has = True
+			break
+
+	return has
 

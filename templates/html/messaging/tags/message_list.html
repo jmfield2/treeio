@@ -17,6 +17,10 @@
                 </td>
                 <td>
                     <div class="message-list-field">
+		    {% if message.has_attachments() %}
+		   	<img src="/static/icons/attach.gif" /> 
+		    {% endif %}
+
                     {% if message.title %}
                     <a href="{% url messaging_message_view message.id %}">{{ message.title|truncate(100, True) }}</a>
                     <span class="spaced-h">

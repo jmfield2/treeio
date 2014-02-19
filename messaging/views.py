@@ -8,7 +8,7 @@ Messaging module views
 """
 from django.shortcuts import get_object_or_404
 from django.template import RequestContext
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 from django.contrib import messages
@@ -526,6 +526,21 @@ def messaging_view(request, message_id, response_format='html'):
                     'messages':replies,
                     'form':form})
 
+    accepted_types = ['audio', 'image', 'application']
+    a = []
+
+    import email
+    rfc=unicode(message.rfc822).encode('utf-8', errors='replace')
+    e = email.message_from_string(rfc)
+    for part in e.walk():
+    	type = part.get_content_type().split('/')[0]
+        if type in accepted_types:
+        	#print part.get_payload(decode=True)
+		file=part['Content-Disposition'].split("filename=")[1].strip('\'"')
+		a.append( (type, file) )
+
+    context['attachments'] = a
+
     return render_to_response('messaging/message_view', context,
                               context_instance=RequestContext(request),
                               response_format=response_format)
@@ -559,6 +574,27 @@ def messaging_delete(request, message_id, response_format='html'):
                               context_instance=RequestContext(request),
                               response_format=response_format)  
 
+@treeio_login_required
+def attachment_view(request, message_id, filename):
+	payload = False
+	import email
+	accepted_types = ['audio', 'image', 'application']
+	message = Message.objects.filter(Q(id=message_id)).all()[0]
+	# XXX CHECK PERMISSIONS
+
+    	rfc=unicode(message.rfc822).encode('utf-8', errors='replace')
+   	e = email.message_from_string(rfc)
+    	for part in e.walk():
+		if part.get_content_type() == None or 'Content-Disposition' not in part: continue
+        	type = part.get_content_type().split('/')[0]
+                name=part['Content-Disposition'].split("filename=")[1].strip('\'"') or False
+        	if type in accepted_types and name == filename:
+                	payload = part.get_payload(decode=True)
+			break
+
+	return HttpResponse(payload, content_type='application/octet-stream')
+
+
 """
 Mailing Lists
 """
@@ -582,6 +618,8 @@ def mlist_add(request, response_format='html'):
         
     context = _get_default_context(request)
     context.update({'form': form})
+
+
 
     return render_to_response('messaging/mlist_add', context,
                               context_instance=RequestContext(request),
