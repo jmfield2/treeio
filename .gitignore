@@ -1,3 +1,4 @@
+wsgi
 .ve
 *.pyc
 core/db/dbsettings.json
