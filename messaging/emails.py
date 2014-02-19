@@ -66,7 +66,7 @@ class EmailStream(EmailReceiver):
                     if attrs.email_date:
                         message.date_created = attrs.email_date
 
-		    message.rfc822 = msg.as_string().encode('utf-8', errors='ignore')
+		    message.rfc822 = msg.as_string().decode('utf-8', errors='replace')
 
                     message.save()
                     message.copy_permissions(original)
@@ -78,7 +78,7 @@ class EmailStream(EmailReceiver):
                 if attrs.email_date:
                     message.date_created = attrs.email_date
 
-		message.rfc822 = msg.as_string().encode('utf-8', errors='ignore') #utf-8', errors='replace')
+		message.rfc822 = msg.as_string().decode('utf-8', errors='replace') #utf-8', errors='replace')
 
                 message.save()
                 message.copy_permissions(self.stream)
