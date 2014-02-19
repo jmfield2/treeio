@@ -357,7 +357,7 @@ HARDTREE_SERVER_TIMEZONE =  (('0', u'(GMT-11:00) International Date Line West'),
 # Messaging
 #
 HARDTREE_MESSAGING_POP3_LIMIT = 100 # number of emails
-HARDTREE_MESSAGING_IMAP_LIMIT = 200 # number of emails
+HARDTREE_MESSAGING_IMAP_LIMIT = 500 # number of emails
 
 HARDTREE_MESSAGING_UNSAFE_BLOCKS = ('head', 'object', 'embed', 'applet', 'noframes',
                                     'noscript', 'noembed', 'iframe', 'frame', 'frameset')
