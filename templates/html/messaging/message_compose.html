@@ -15,6 +15,12 @@
 {% csrf_token %}
         <ul class="content-form-fields">
             {{ form.as_ul()|htsafe }}
+
+	     <div id="compose_attachments"></div>
+	     <li>
+		<label for="id_multicomplete_attachments">Attach Document:</label> <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span>
+		<input callback="/messaging/ajax/attach" class="multicomplete ui-autocomplete-input" id="id_multicomplete_attachments" name="multicomplete_attachments" type="text" autocomplete="on"></li>
+
         </ul>
         <div class="content-form-submit">
             <input type="submit" name="save" value="{% trans %}Send Message{% endtrans %}" class="submit" />
