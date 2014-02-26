@@ -536,6 +536,7 @@ def messaging_view(request, message_id, response_format='html'):
     	type = part.get_content_type().split('/')[0]
         if type in accepted_types:
         	#print part.get_payload(decode=True)
+		if part['Content-Disposition'] is None: continue
 		file=part['Content-Disposition'].split("filename=")[1].strip('\'"')
 		a.append( (type, file) )
 
