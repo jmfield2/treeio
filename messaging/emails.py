@@ -47,8 +47,8 @@ class EmailStream(EmailReceiver):
 
         # check if the message is already retrieved
 
-	# XXX body=attrs.body removed, should store a unique 'msg-id'
-        existing = Message.objects.filter(stream=self.stream, title=attrs.subject, author=email_author).exists()
+	# XXX should store a unique 'msg-id'
+        existing = Message.objects.filter(stream=self.stream, title=attrs.subject, author=email_author, body=attrs.body.encode('utf-8', errors='replace')).exists()
         if not existing:
             message = None
             if attrs.subject[:3] == 'Re:':

@@ -23,7 +23,7 @@ urlpatterns = patterns('treeio.messaging.views',
         url(r'^delete/(?P<message_id>\d+)(\.(?P<response_format>\w+))?/?$', 
             'messaging_delete', name='messaging_message_delete'),
 
-	url(r'^attachment/view/(?P<message_id>\d+)/(?P<filename>[0-9a-zA-Z\-\.\ ]+)/?$', 'attachment_view', name='messaging_attachment_view'),
+	url(r'^attachment/view/(?P<message_id>\d+)/(?P<filename>[\w\W\ ]+)/?$', 'attachment_view', name='messaging_attachment_view'),
         
         # Streams
         url(r'^stream/add(\.(?P<response_format>\w+))?/?$', 
