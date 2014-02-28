@@ -41,7 +41,7 @@ class EmailStream(EmailReceiver):
         except:
             default_contact_type = None
 
-        email_author, created = Contact.get_or_create_by_email(attrs.author_email, attrs.author_name, default_contact_type)
+        email_author, created = Contact.get_or_create_by_email(attrs.author_email.encode('utf-8', errors='replace'), attrs.author_name.encode('utf-8', errors='replace'), default_contact_type)
         if created:
             email_author.copy_permissions(self.stream)
 
