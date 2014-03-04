@@ -147,14 +147,14 @@ def _get_report_content(report, request=None):
         for filter in field.filters:
             if filter['operand']=='is': filters.setdefault(field.name+'__in', []).append( filter['choice'] )
             elif filter['operand']=='not': excludes.setdefault(field.name+'__in', []).append( filter['choice'] )
-            elif filter['operand']=='beforedate': filters[field.name+'__gte'] = datetime.date(datetime.strptime(filter['choice'], '%m/%d/%Y'))
-            elif filter['operand']=='afterdate': filters[field.name+'__lte'] = datetime.date(datetime.strptime(filter['choice'], '%m/%d/%Y'))
-            elif filter['operand']=='beforedatetime': filters[field.name+'__gte'] = datetime.strptime(filter['choice'], '%m/%d/%Y %H:%M')
-            elif filter['operand']=='afterdatetime': filters[field.name+'__lte'] = datetime.strptime(filter['choice'], '%m/%d/%Y %H:%M')
+            elif filter['operand']=='beforedate': filters[field.name+'__lte'] = datetime.date(datetime.strptime(filter['choice'], '%m/%d/%Y'))
+            elif filter['operand']=='afterdate': filters[field.name+'__gte'] = datetime.date(datetime.strptime(filter['choice'], '%m/%d/%Y'))
+            elif filter['operand']=='beforedatetime': filters[field.name+'__lte'] = datetime.strptime(filter['choice'], '%m/%d/%Y %H:%M')
+            elif filter['operand']=='afterdatetime': filters[field.name+'__gte'] = datetime.strptime(filter['choice'], '%m/%d/%Y %H:%M')
             elif filter['operand']=='on': filters.setdefault(field.name+'__in', []).append( datetime.strptime(filter['choice'], '%m/%d/%Y') )
 
     set = unfiltered_set.filter(**filters).exclude(**excludes)
-    
+ 
     # Check for group
     groupname = None
     groups = None
