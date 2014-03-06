@@ -409,7 +409,12 @@ class TransactionFilterForm(forms.ModelForm):
     
     def __init__(self, user, skip=[], *args, **kwargs):
         super(TransactionFilterForm, self).__init__(*args, **kwargs)
-        
+      
+	if 'details' in skip:
+	    del self.fields['details']
+	else:
+	    self.fields['details'] = forms.CharField(label="Details", required=False)
+  
         if 'datefrom' in skip:
             del self.fields['datefrom']
             del self.fields['dateto']

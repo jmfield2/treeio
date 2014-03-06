@@ -39,7 +39,10 @@ def _get_filter_query(model, args):
             if hasattr(model, arg):
                 kwargs = {str(arg + '__id'): long(args[arg])}
                 query = query & Q(**kwargs) 
-        
+
+    if 'details' in args and args['details']:
+	query = query & Q(details__icontains=args['details'])
+
     if 'datefrom' in args and args['datefrom']:
         datefrom = datetime.date(datetime.strptime(args['datefrom'], '%m/%d/%Y'))
         query = query & Q(date_created__gte=datefrom)
@@ -512,9 +515,9 @@ def index_transactions(request, response_format='html'):
                     pass
  
     massform = MassActionForm(request.user.get_profile())
-    
+   
     transactions = Object.filter_by_request(request, Transaction.objects.filter(query), mode="r")    
-    
+ 
     filters = TransactionFilterForm(request.user.get_profile(), 'title', request.GET)
     
     return render_to_response('finance/index_transactions',
