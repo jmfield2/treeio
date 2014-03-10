@@ -60,8 +60,9 @@ class EmailStream(EmailReceiver):
 
                 try:
                     query = Q(reply_to__isnull=True) & Q(recipients=email_author) & (Q(title=original_subject) | Q(title=attrs.subject))
+
                     original = Message.objects.filter(query).order_by('-date_created')[:1][0]
-                    message = Message(title=attrs.subject, body=attrs.body.encode('utf-8', errors='replace'), author=email_author,
+                    message = Message(title=attrs.subject.encode('utf-8', errors='replace'), body=attrs.body.encode('utf-8', errors='replace').decode('unicode_escape'), author=email_author,
                                     stream=self.stream, reply_to=original)
                     if attrs.email_date:
                         message.date_created = attrs.email_date
@@ -74,7 +75,7 @@ class EmailStream(EmailReceiver):
                 except IndexError:
                     pass
             if not message:
-                message = Message(title=attrs.subject, body=attrs.body.encode('utf-8', errors='replace'), author=email_author, stream=self.stream)
+                message = Message(title=attrs.subject.encode('utf-8', errors='replace'), body=attrs.body.encode('utf-8', errors='replace').decode('unicode_escape'), author=email_author, stream=self.stream)
                 if attrs.email_date:
                     message.date_created = attrs.email_date
 
