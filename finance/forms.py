@@ -124,7 +124,23 @@ class AccountFilterForm(forms.ModelForm):
         model = Account
         fields = ['owner']
         
-        
+class IncomeFilterForm(forms.Form):
+
+	account = forms.CharField(label=_("Name"), required=False)
+
+        datefrom = forms.DateField(label=_("Date From"), required = False)
+        datefrom.widget.attrs.update({'class': 'datepicker'})
+        dateto = forms.DateField(label=_("Date To"), required = False)
+        dateto.widget.attrs.update({'class': 'datepicker'})
+
+	fields = {"account":account, "datefrom":datefrom, "dateto":dateto}
+
+	def __init__(self, *args, **kwargs):
+		super(forms.Form, self).__init__(*args, **kwargs)
+
+        	self.fields['account'].widget.attrs.update({'class': 'autocomplete',
+			        'callback': reverse('identities_ajax_contact_lookup')})
+
 class AssetForm(forms.ModelForm):
     """ Asset form """
     def __init__(self, user, *args, **kwargs):
@@ -409,7 +425,12 @@ class TransactionFilterForm(forms.ModelForm):
     
     def __init__(self, user, skip=[], *args, **kwargs):
         super(TransactionFilterForm, self).__init__(*args, **kwargs)
-        
+      
+	if 'details' in skip:
+	    del self.fields['details']
+	else:
+	    self.fields['details'] = forms.CharField(label="Details", required=False)
+  
         if 'datefrom' in skip:
             del self.fields['datefrom']
             del self.fields['dateto']

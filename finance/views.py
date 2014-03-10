@@ -20,7 +20,7 @@ from treeio.identities.models import Contact
 from treeio.finance.forms import TransactionForm, LiabilityForm, AccountForm, EquityForm, AssetForm, \
                              CategoryForm, MassActionForm, TransactionFilterForm, LiabilityFilterForm, \
                              EquityFilterForm, AssetFilterForm, AccountFilterForm, ReceivableForm, \
-                             SettingsForm, CurrencyForm, TaxForm
+                             SettingsForm, CurrencyForm, TaxForm, IncomeFilterForm
 from treeio.finance.models import Transaction, Liability, Category, Account, Equity, Asset, Currency, Tax
 from treeio.finance.csvapi import ProcessTransactions
 from treeio.sales.models import Product, SaleOrder
@@ -39,7 +39,10 @@ def _get_filter_query(model, args):
             if hasattr(model, arg):
                 kwargs = {str(arg + '__id'): long(args[arg])}
                 query = query & Q(**kwargs) 
-        
+
+    if 'details' in args and args['details']:
+	query = query & Q(details__icontains=args['details'])
+
     if 'datefrom' in args and args['datefrom']:
         datefrom = datetime.date(datetime.strptime(args['datefrom'], '%m/%d/%Y'))
         query = query & Q(date_created__gte=datefrom)
@@ -178,8 +181,13 @@ def category_view(request, category_id, response_format='html'):
                     pass
 
     massform_liability = MassActionForm(request.user.get_profile())
-    
-    transactions = Object.filter_by_request(request, Transaction.objects) 
+   
+    if request.GET.get('datefrom', False):
+        datefrom = datetime.date(datetime.strptime(request.GET.get('datefrom'), '%m/%d/%Y'))
+        dateto = datetime.date(datetime.strptime(request.GET.get('dateto'), '%m/%d/%Y'))
+	transactions = Transaction.objects.filter(Q(datetime__gte=datefrom) & Q(datetime__lte=dateto))
+    else: 
+    	transactions = Object.filter_by_request(request, Transaction.objects) 
     liabilities = Object.filter_by_request(request, Liability.objects) 
 
     return render_to_response('finance/category_view',
@@ -512,9 +520,9 @@ def index_transactions(request, response_format='html'):
                     pass
  
     massform = MassActionForm(request.user.get_profile())
-    
+   
     transactions = Object.filter_by_request(request, Transaction.objects.filter(query), mode="r")    
-    
+ 
     filters = TransactionFilterForm(request.user.get_profile(), 'title', request.GET)
     
     return render_to_response('finance/index_transactions',
@@ -869,26 +877,51 @@ def income_view(request, response_format='html'):
     try:
         conf = ModuleSetting.get_for_module('treeio.finance', 'my_company')[0]
         my_company = Contact.objects.get(pk=long(conf.value), trash=False)
-             
     except Exception:
         my_company = None
-    
-    if my_company:
-        categories = Category.objects.filter(trash=False)
-        transactions = Transaction.objects.filter(account__owner=my_company, trash=False)
+
+    query = Q(trash=False)
+    account = request.GET.get('account', False)
+
+    if account: 
+	owner = account
+    elif my_company:
+	owner = my_company
     else:
+	query = False
         categories = Object.filter_by_request(request, Category.objects)
         transactions = Object.filter_by_request(request, Transaction.objects)
-    
+	receivables = False
+
+    date_query = False
+    if request.GET.get('datefrom', False):
+        datefrom = datetime.date(datetime.strptime(request.GET.get('datefrom'), '%m/%d/%Y'))
+	date_query = Q(datetime__gte=datefrom)
+    if request.GET.get('dateto', False):
+        dateto = datetime.date(datetime.strptime(request.GET.get('dateto'), '%m/%d/%Y'))	
+	if date_query: date_query = date_query & Q(datetime__lte=dateto)
+	else: date_query = Q(datetime__lte=dateto)
+
+    if query:
+	    query = query & Q(account__owner=owner)
+	    categories = Category.objects.filter(trash=False)
+	    if date_query: 
+		transactions = Transaction.objects.filter(query & date_query)
+	        receivables = Liability.objects.filter(Q(target=owner)) # date_created XXX
+	    else:
+                transactions = Transaction.objects.filter(query)
+                receivables = Liability.objects.filter(target=owner)		
+
+    args = request.GET
     total = 0
     revenues = 0
     expenses = 0
     
-    if my_company:
+    if receivables:
         # Receivables
-        for receivable in Liability.objects.filter(target=my_company, trash=False):
+        for receivable in receivables:
             value = receivable.value
-            paid = receivable.transaction_set.filter(source=my_company, trash=False).aggregate(Sum('value'))
+            paid = receivable.transaction_set.filter(source=owner, trash=False).aggregate(Sum('value'))
             if paid['value__sum']:
                 value = receivable.value - paid['value__sum']
             if value > 0:
@@ -917,11 +950,15 @@ def income_view(request, response_format='html'):
                 else:
                     category.expense += abs(val)
 
+    filters = IncomeFilterForm() # XXX no queryset restricting user
+
     return render_to_response('finance/income_view',
                               {'transactions': transactions,
                                'categories': categories,
                                'total': total,
                                'revenues': revenues,
+			       'filters': filters,
+			       'query': args,
                                'expenses': expenses
                                },
                               context_instance=RequestContext(request), response_format=response_format)

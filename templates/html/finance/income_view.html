@@ -9,6 +9,15 @@
 
 {% block sidebar_right %}
 
+<span class="sidebar-header-first">{% trans %}Filter by{% endtrans %}</span>
+<form action="" method="get" class="content-filter-form">
+    <ul class="content-filter-form-fields">
+        {{ filters.as_p()|htsafe }}
+    </ul>
+    <input type="submit" value="{% trans %}Submit{% endtrans %}">
+</form>
+<br />
+
 <span class="sidebar-header-first">{% trans %}Export to{% endtrans %}
     {% if '?' in request.get_full_path() %}<a href="{{ request.get_full_path()|replace('.ajax','').replace('?','.csv?') }}"{% else %}<a href="{{ request.get_full_path()|replace('.ajax','') }}.csv"{% endif %} target="_self">CSV</a>,
     {% if '?' in request.get_full_path() %}<a href="{{ request.get_full_path()|replace('.ajax','').replace('?','.xls?') }}"{% else %}<a href="{{ request.get_full_path()|replace('.ajax','') }}.xls"{% endif %} target="_self">XLS</a></span>
@@ -16,13 +25,17 @@
 
 {% block module_content %}
 
+Account: {{ query.get('account', '-') }}
+Date(s): {{ query.get('datefrom', 'N/A') }} - {{ query.get('dateto', 'N/A') }}
+<br>
+
 <div class="spaced-v large light">
     {% trans %}Revenues{% endtrans %}
 </div>
 {% for category in categories %}
 {% if category.revenue %}
 <div>
-    <span class="content-label"><a href="{% url finance_category_view category.id %}">{{ category.name }}</a></span>
+    <span class="content-label"><a href="/finance/income#{% url finance_category_view category.id %}?datefrom={{ query.get('datefrom', '') }}&dateto={{ query.get('dateto', '') }}">{{ category.name }}</a></span>
     <span class="content-value">{{ category.revenue|number_format }}</span>
 </div>
 {% endif %}
@@ -38,7 +51,7 @@
 {% for category in categories %}
 {% if category.expense %}
 <div>
-    <span class="content-label"><a href="{% url finance_category_view category.id %}">{{ category.name }}</a></span>
+    <span class="content-label"><a href="/finance/income#{% url finance_category_view category.id %}?datefrom={{ query.get('datefrom', '') }}&dateto={{ query.get('dateto', '') }}">{{ category.name }}</a></span>
     <span class="content-value">{{ category.expense|number_format|currency_format }}</span>
 </div>
 {% endif %}
