@@ -303,8 +303,7 @@ def stream_view(request, stream_id, response_format='html'):
         form = None
         
     messages = Object.filter_by_request(request, 
-                                        Message.objects.filter(reply_to__isnull=True, 
-                                                               stream=stream).order_by('-date_created'))
+                                        Message.objects.filter(stream=stream).order_by('-date_created'))
     context = _get_default_context(request)
     context.update({'messages':messages,
                     'form': form,
